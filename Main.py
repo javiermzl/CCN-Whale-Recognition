@@ -28,6 +28,7 @@ def import_data():
     images = []
     for _file in os.listdir(TRAIN_DIR):
         img = cv2.imread(os.path.join(TRAIN_DIR, _file))
+        images.append(img)
     return images
 
 
