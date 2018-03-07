@@ -11,35 +11,37 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 TRAIN_DIR = '../data/train/'
 TEST_DIR = '../data/test/'
 
-train_csv = pd.read_csv('../data/train.csv')
-submission = pd.read_csv('../data/sample_submission.csv')
+df_train = pd.read_csv('../data/train.csv')
+df_submission = pd.read_csv('../data/sample_submission.csv')
 
 train_images = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_images = glob(os.path.join(TEST_DIR, '*.jpg'))
 
 
-def check_data():
-    print('Train Size:', len(train_images))
-    print('Test Size:', len(test_images))
-
-    print(train_csv.shape)
-    print(submission.shape)
-
-
 def import_image(file):
     image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-    resized_image = cv2.resize(image, (64, 64))
-    return np.array(resized_image)
+    resize_image = cv2.resize(image, (64, 64))
+    return np.array(resize_image)
 
 
 def import_train_data():
     return np.array([import_image(img) for img in train_images])
 
 
+def import_test_data():
+    return np.array([import_image(img) for img in test_images])
+
+
 if __name__ == '__main__':
-    check_data()
+    train_np = import_train_data()
+    test_np = import_test_data()
 
-    train = import_train_data()
-    print('\nNP Array Size:', train.shape)
+    print('\nNP Train Array Size:', train_np.shape)
+    print('\nNP Test Array Size:', test_np.shape)
 
-    train_tf = tf.convert_to_tensor(train, np.uint8)
+    train_tensor = tf.convert_to_tensor(train_np, np.uint8)
+    test_tensor = tf.convert_to_tensor(test_np, np.uint8)
+
+    with tf.Session() as sess:
+        print(train_tensor.eval())
+        print(test_tensor.eval())
