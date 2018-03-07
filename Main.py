@@ -4,8 +4,6 @@ from glob import glob
 import tensorflow as tf
 import pandas as pd
 import numpy as np
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
 import cv2
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -28,16 +26,20 @@ def check_data():
     print(submission.shape)
 
 
+def import_image(file):
+    image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+    resized_image = cv2.resize(image, (64, 64))
+    return np.array(resized_image)
+
+
 def import_train_data():
-    images = []
-    for _file in train_images:
-        img = cv2.imread(_file)
-        images.append(img)
-    return images
+    return np.array([import_image(img) for img in train_images])
 
 
 if __name__ == '__main__':
     check_data()
 
     train = import_train_data()
-    print('\nNP Array Size:', len(train))
+    print('\nNP Array Size:', train.shape)
+
+    train_tf = tf.convert_to_tensor(train, np.uint8)
