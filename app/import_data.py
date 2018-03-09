@@ -3,7 +3,10 @@ import os
 from glob import glob
 import pandas as pd
 import numpy as np
-import cv2
+from sklearn import preprocessing
+
+from app import images
+
 
 TRAIN_DIR = '../../data/train/'
 TEST_DIR = '../../data/test/'
@@ -14,19 +17,29 @@ df_submission = pd.read_csv('../../data/sample_submission.csv')
 train_images = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_images = glob(os.path.join(TEST_DIR, '*.jpg'))
 
+df_train['Image'] = df_train['Image'].map(lambda x: TRAIN_DIR+x)
+image_label = dict(zip(df_train['Image'], df_train['Id']))
 
-def get_image(file):
-    image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-    resize_image = cv2.resize(image, (64, 64))
-    return np.array(resize_image)
+n_classes = 810
+
+
+def get_labels():
+    le = preprocessing.LabelEncoder()
+    ohe = preprocessing.OneHotEncoder()
+
+    labels = list(map(image_label.get, train_images))
+    labels = le.fit_transform(labels)
+    labels = ohe.fit_transform(labels.reshape(-1, 1))
+
+    return labels
 
 
 def import_train_images():
-    return np.array([get_image(img) for img in train_images])
+    return np.array([images.get_image(img) for img in train_images])
 
 
 def import_test_images():
-    return np.array([get_image(img) for img in test_images])
+    return np.array([images.get_image(img) for img in test_images])
 
 
 def save(train, test):

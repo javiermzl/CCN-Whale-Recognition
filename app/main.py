@@ -1,23 +1,35 @@
 import os
 
 import tensorflow as tf
-import numpy as np
 
-from app import import_data
-
+from app import import_data as data
+from app import model
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+tf.logging.set_verbosity(tf.logging.INFO)
 
 
 if __name__ == '__main__':
-    train_np, test_np = import_data.load()
+    train_np, test_np = data.load()
+    y = data.get_labels()
 
-    print('NP Train Array Size:', train_np.shape)
-    print('NP Test Array Size:', test_np.shape)
+    model = tf.estimator.Estimator(model.model_fn)
 
-    train_tensor = tf.convert_to_tensor(train_np, np.uint8)
-    test_tensor = tf.convert_to_tensor(test_np, np.uint8)
+    input_fn = tf.estimator.inputs.numpy_input_fn(
+        x={'images': train_np},
+        y=y,
+        batch_size=100,
+        num_epochs=None,
+        shuffle=True
+    )
 
-    with tf.Session() as sess:
-        print(train_tensor.eval())
-        print(test_tensor.eval())
+    model.train(input_fn, steps=1000)
+
+    input_fn = tf.estimator.inputs.numpy_input_fn(
+        x={'images': test_np},
+        y=y,
+        batch_size=100,
+        shuffle=False)
+
+    e = model.evaluate(input_fn)
+    print("Testing Accuracy:", e['accuracy'])
