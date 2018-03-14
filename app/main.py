@@ -25,6 +25,7 @@ if __name__ == '__main__':
 
     model.train(input_fn, steps=1000)
 
+    '''
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x={'images': test_np},
         y=y,
@@ -33,3 +34,4 @@ if __name__ == '__main__':
 
     e = model.evaluate(input_fn)
     print("Testing Accuracy:", e['accuracy'])
+    '''

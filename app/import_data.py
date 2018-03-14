@@ -17,7 +17,7 @@ df_submission = pd.read_csv('../../data/sample_submission.csv')
 train_images = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_images = glob(os.path.join(TEST_DIR, '*.jpg'))
 
-df_train['Image'] = df_train['Image'].map(lambda x: TRAIN_DIR+x)
+df_train['Image'] = df_train['Image'].map(lambda x: '../../data/train\\'+x)
 image_label = dict(zip(df_train['Image'], df_train['Id']))
 
 n_classes = 810
@@ -54,7 +54,10 @@ def load():
 
 
 if __name__ == '__main__':
+    '''
     train_np = import_train_images()
     test_np = import_test_images()
 
     save(train_np, test_np)
+    '''
+    print(get_labels())
