@@ -4,6 +4,7 @@ from glob import glob
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
+import tensorflow as tf
 
 from app import images
 
@@ -24,14 +25,11 @@ n_classes = 810
 
 
 def get_labels():
-    le = preprocessing.LabelEncoder()
-    ohe = preprocessing.OneHotEncoder()
-
     labels = list(map(image_label.get, train_images))
-    labels = le.fit_transform(labels)
-    labels = ohe.fit_transform(labels.reshape(-1, 1))
+    indices = preprocessing.LabelEncoder().fit_transform(labels)
+    one_hot_encoded = tf.one_hot(indices=indices, depth=n_classes)
 
-    return labels
+    return one_hot_encoded
 
 
 def import_train_images():
@@ -54,10 +52,8 @@ def load():
 
 
 if __name__ == '__main__':
-    '''
+
     train_np = import_train_images()
     test_np = import_test_images()
 
     save(train_np, test_np)
-    '''
-    print(get_labels())

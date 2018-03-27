@@ -1,6 +1,7 @@
 import os
 
 import tensorflow as tf
+import numpy as np
 
 from app import import_data as data
 from app import model
@@ -13,6 +14,8 @@ if __name__ == '__main__':
     train_np, test_np = data.load()
     y = data.get_labels()
 
+    train_np = train_np.astype(np.float32)
+
     model = tf.estimator.Estimator(model.model_fn)
 
     input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -20,18 +23,17 @@ if __name__ == '__main__':
         y=y,
         batch_size=100,
         num_epochs=None,
-        shuffle=True
+        shuffle=True,
     )
 
     model.train(input_fn, steps=1000)
 
-    '''
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x={'images': test_np},
         y=y,
         batch_size=100,
-        shuffle=False)
+        shuffle=False
+    )
 
     e = model.evaluate(input_fn)
     print("Testing Accuracy:", e['accuracy'])
-    '''
