@@ -5,7 +5,6 @@ from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 import cv2
-import tensorflow as tf
 
 
 TRAIN_DIR = '../data/train/'
@@ -32,9 +31,7 @@ def get_image(file):
 def get_labels():
     labels = list(map(image_label.get, train_images))
     indices = preprocessing.LabelEncoder().fit_transform(labels)
-    one_hot_encoded = tf.one_hot(indices=indices, depth=n_classes)
-
-    return one_hot_encoded
+    return indices
 
 
 def import_train_images():

@@ -43,7 +43,7 @@ def model_fn(features, labels, mode):
     logits_train = conv_net(features, True)
     logits_test = conv_net(features, False)
 
-    predict_classes = tf.arg_max(logits_test, axis=1)
+    predict_classes = tf.argmax(logits_test, axis=1)
     predict_prob = tf.nn.softmax(logits_test)
 
     if mode == tf.estimator.ModeKeys.PREDICT:
