@@ -1,7 +1,7 @@
 import os
 
 from glob import glob
-from sklearn import preprocessing
+from sklearn import preprocessing, model_selection
 import pandas as pd
 import numpy as np
 import cv2
@@ -45,11 +45,16 @@ def save_files():
     train = import_train_images()
     evalu = import_eval_images()
 
-    np.save('../data/train.npy', train)
-    np.save('../data/eval.npy', evalu)
+    np.save('data/train.npy', train)
+    np.save('data/eval.npy', evalu)
 
 
 def load_files():
     train = np.load('data/train.npy')
     evalu = np.load('data/eval.npy')
     return train, evalu
+
+
+def split_train_df():
+    train, test = model_selection.train_test_split(df_train, test_size=0.2)
+    return train, test
