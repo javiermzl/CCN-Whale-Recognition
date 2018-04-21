@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from app import import_data as data
+from app import data
 
 
 def conv_net(features, mode):
