@@ -10,7 +10,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'    # Remove Warnings
 tf.logging.set_verbosity(tf.logging.INFO)   # Show Progress Info
 
 
-train_np, test_np = data.load()
+train_np, test_np = data.load_files()
 y = data.get_labels()
 
 train_np = train_np.astype(np.float32)
