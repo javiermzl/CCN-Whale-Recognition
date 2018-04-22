@@ -40,31 +40,36 @@ def conv_net(features, mode):
 
 
 def model_fn(features, labels, mode):
-    logits_train = conv_net(features, True)
-    logits_test = conv_net(features, False)
+    logits = conv_net(features, mode)
 
-    predict_classes = tf.argmax(logits_test, axis=1)
-    predict_prob = tf.nn.softmax(logits_test)
+    loss, eval_metrics_ops, train_op = None, None, None
+    predictions = {
+        'Classes': tf.argmax(logits, axis=1),
+        'Probabilities': tf.nn.softmax(logits)
+    }
 
-    if mode == tf.estimator.ModeKeys.PREDICT:
-        return tf.estimator.EstimatorSpec(mode=mode, predictions=predict_classes)
+    if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
 
-    onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=data.n_classes)
-    loss = tf.losses.softmax_cross_entropy(
-        onehot_labels=onehot_labels, logits=logits_train)
+        onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=data.n_classes)
+        loss = tf.losses.softmax_cross_entropy(
+            onehot_labels=onehot_labels, logits=logits)
 
-    if mode == tf.estimator.ModeKeys.TRAIN:
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
-        train_op = optimizer.minimize(
-            loss=loss,
-            global_step=tf.train.get_global_step()
-        )
-        return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+        if mode == tf.estimator.ModeKeys.TRAIN:
+            optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+            train_op = optimizer.minimize(
+                loss=loss,
+                global_step=tf.train.get_global_step()
+            )
+        elif mode == tf.estimator.ModeKeys.EVAL:
+            eval_metrics_ops = {
+                'accuracy': tf.metrics.accuracy(labels=labels, predictions=predictions['Classes'])
+            }
 
-    accuracy = tf.metrics.accuracy(labels=labels, predictions=predict_classes)
+    elif mode == tf.estimator.ModeKeys.PREDICT:
+        predictions = predictions
 
     estimator_spec = tf.estimator.EstimatorSpec(
-        mode=mode, loss=loss, eval_metric_ops=accuracy
+        mode=mode, loss=loss, train_op=train_op, eval_metric_ops=eval_metrics_ops, predictions=predictions
     )
 
     return estimator_spec

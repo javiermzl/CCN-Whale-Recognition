@@ -31,8 +31,9 @@ input_fn = tf.estimator.inputs.numpy_input_fn(
     x=test_np,
     y=y_test,
     batch_size=100,
+    num_epochs=1,
     shuffle=False
 )
 
-e = model.evaluate(input_fn)
+e = model.evaluate(input_fn=input_fn)
 print("Testing Accuracy:", e['accuracy'])
