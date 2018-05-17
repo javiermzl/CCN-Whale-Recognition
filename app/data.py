@@ -20,8 +20,8 @@ n_classes = 810
 
 
 def get_image(file):
-    image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-    resize_image = cv2.resize(image, (64, 64))
+    img = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+    resize_image = cv2.resize(img, (64, 64))
     return np.array(resize_image)
 
 
@@ -42,15 +42,15 @@ def import_split_train_images():
     test_img = []
     train, test = split_train(df_train)
 
-    for img in train_images:
-        if train['Image'].str.contains(img[14:]).any():
-            image = get_image(img)
-            train_img.append(image)
+    for file in train_images:
+        if train['Image'].str.contains(file[14:]).any():
+            img = get_image(file)
+            train_img.append(img)
 
-    for img in train_images:
-        if test['Image'].str.contains(img[14:]).any():
-            image = get_image(img)
-            test_img.append(image)
+    for file in train_images:
+        if test['Image'].str.contains(file[14:]).any():
+            img = get_image(file)
+            test_img.append(img)
 
     train = np.array(train_img)
     test = np.array(test_img)
