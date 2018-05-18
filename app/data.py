@@ -24,6 +24,33 @@ n_classes = 810
 split_seed = 0  # During Dev
 
 
+def labels_augementation():
+    train_labels, test_labels = get_labels()
+    train, test = split_train(df_train)
+    aug_train_labels = []
+    row = 0
+
+    frequency = train['Id'].value_counts().to_dict()
+
+    for file in train_images:
+        file_name = file[14:]
+
+        if train['Image'].str.contains(file_name).any():
+
+            value_frequency = frequency[train.iloc[row]['Id']]
+            label = train_labels[row]
+
+            if value_frequency < 10:
+                for i in range(10 - value_frequency):
+                    aug_train_labels.append(label)
+            else:
+                aug_train_labels.append(label)
+
+            row += 1
+
+    return np.array(aug_train_labels), test_labels
+
+
 def data_augmentation():
     train_img, test_img = [], []
     row = 0
