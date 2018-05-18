@@ -20,7 +20,8 @@ train_images = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_images = glob(os.path.join(TEST_DIR, '*.jpg'))
 
 n_classes = 810
-split_seed = randint(0, 100)
+#split_seed = randint(0, 100)
+split_seed = 0
 
 
 def data_augmentation():
@@ -34,11 +35,10 @@ def data_augmentation():
 
     for file in train_images:
         file_name = file[14:]
-        value = train.iloc[row]['Id']
+        img = get_image(file)
 
         if train['Image'].str.contains(file_name).any():
-            img = get_image(file)
-            value_frequency = frequency[value]
+            value_frequency = frequency[train.iloc[row]['Id']]
 
             if value_frequency < 10:
                 images = prep.data_augmentation(img, 10 - value_frequency)
@@ -47,10 +47,10 @@ def data_augmentation():
             else:
                 train_img.append(img)
 
-        row += 1
+            row += 1
 
         if test['Image'].str.contains(file_name).any():
-            img = get_image(file)
+            img = prep.rgb_to_gray(img)
             test_img.append(img)
 
     train = np.array(train_img)
@@ -84,12 +84,13 @@ def import_split_train_images():
     for file in train_images:
         file_name = file[14:]
 
+        img = get_image(file)
+        img = prep.rgb_to_gray(img)
+
         if train['Image'].str.contains(file_name).any():
-            img = get_image(file)
             train_img.append(img)
 
         if test['Image'].str.contains(file_name).any():
-            img = get_image(file)
             test_img.append(img)
 
     train = np.array(train_img)
