@@ -21,7 +21,7 @@ test_images = glob(os.path.join(TEST_DIR, '*.jpg'))
 
 n_classes = 810
 #split_seed = randint(0, 100)
-split_seed = 0
+split_seed = 0  # During Dev
 
 
 def data_augmentation():
@@ -31,25 +31,24 @@ def data_augmentation():
     train, test = split_train(df_train)
     frequency = train['Id'].value_counts().to_dict()
 
-    print(frequency)
-
     for file in train_images:
         file_name = file[14:]
         img = get_image(file)
 
         if train['Image'].str.contains(file_name).any():
+
             value_frequency = frequency[train.iloc[row]['Id']]
 
             if value_frequency < 10:
                 images = prep.data_augmentation(img, 10 - value_frequency)
-                for augment in images:
-                    train_images.append(augment)
+                train_img += images
             else:
+                img = prep.rgb_to_gray(img)
                 train_img.append(img)
 
             row += 1
 
-        if test['Image'].str.contains(file_name).any():
+        elif test['Image'].str.contains(file_name).any():
             img = prep.rgb_to_gray(img)
             test_img.append(img)
 
@@ -90,7 +89,7 @@ def import_split_train_images():
         if train['Image'].str.contains(file_name).any():
             train_img.append(img)
 
-        if test['Image'].str.contains(file_name).any():
+        elif test['Image'].str.contains(file_name).any():
             test_img.append(img)
 
     train = np.array(train_img)
