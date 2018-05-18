@@ -1,10 +1,13 @@
 import os
 
+from random import randint
 from glob import glob
 from sklearn import preprocessing, model_selection
 import pandas as pd
 import numpy as np
 import cv2
+
+from app import preprocessing as prep
 
 
 TRAIN_DIR = '../data/train/'
@@ -17,10 +20,47 @@ train_images = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_images = glob(os.path.join(TEST_DIR, '*.jpg'))
 
 n_classes = 810
+split_seed = randint(0, 100)
+
+
+def data_augmentation():
+    train_img, test_img = [], []
+    row = 0
+
+    train, test = split_train(df_train)
+    frequency = train['Id'].value_counts().to_dict()
+
+    print(frequency)
+
+    for file in train_images:
+        file_name = file[14:]
+        value = train.iloc[row]['Id']
+
+        if train['Image'].str.contains(file_name).any():
+            img = get_image(file)
+            value_frequency = frequency[value]
+
+            if value_frequency < 10:
+                images = prep.data_augmentation(img, 10 - value_frequency)
+                for augment in images:
+                    train_images.append(augment)
+            else:
+                train_img.append(img)
+
+        row += 1
+
+        if test['Image'].str.contains(file_name).any():
+            img = get_image(file)
+            test_img.append(img)
+
+    train = np.array(train_img)
+    test = np.array(test_img)
+
+    return train, test
 
 
 def get_image(file):
-    img = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread(file)
     resize_image = cv2.resize(img, (64, 64))
     return np.array(resize_image)
 
@@ -38,17 +78,17 @@ def dataframe_to_array():
 
 
 def import_split_train_images():
-    train_img = []
-    test_img = []
+    train_img, test_img = [], []
     train, test = split_train(df_train)
 
     for file in train_images:
-        if train['Image'].str.contains(file[14:]).any():
+        file_name = file[14:]
+
+        if train['Image'].str.contains(file_name).any():
             img = get_image(file)
             train_img.append(img)
 
-    for file in train_images:
-        if test['Image'].str.contains(file[14:]).any():
+        if test['Image'].str.contains(file_name).any():
             img = get_image(file)
             test_img.append(img)
 
@@ -83,4 +123,4 @@ def load_files():
 
 
 def split_train(train):
-    return model_selection.train_test_split(train, test_size=0.2)
+    return model_selection.train_test_split(train, test_size=0.2, shuffle=False, random_state=split_seed)

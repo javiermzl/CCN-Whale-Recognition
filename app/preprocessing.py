@@ -27,5 +27,5 @@ def rgb_to_gray(img):
     return np.dot(img[..., :3], [0.299, 0.587, 0.114])
 
 
-def data_augmentation(img):
-    return [transform_image(img) * 255 for _ in range(10)]
+def data_augmentation(img, iterations):
+    return [transform_image(img) * 255 for _ in range(iterations)]
