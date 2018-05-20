@@ -1,6 +1,7 @@
 import tensorflow as tf
 
-from app import data
+
+N_CLASSES = 810
 
 
 def conv_net(features, mode):
@@ -34,7 +35,7 @@ def conv_net(features, mode):
         inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN
     )
 
-    output = tf.layers.dense(inputs=dense, units=data.n_classes)
+    output = tf.layers.dense(inputs=dense, units=N_CLASSES)
 
     return output
 
@@ -50,12 +51,12 @@ def model_fn(features, labels, mode):
 
     if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
 
-        onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=data.n_classes)
+        onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=N_CLASSES)
         loss = tf.losses.softmax_cross_entropy(
             onehot_labels=onehot_labels, logits=logits)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
-            optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+            optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.00001)
             train_op = optimizer.minimize(
                 loss=loss,
                 global_step=tf.train.get_global_step()

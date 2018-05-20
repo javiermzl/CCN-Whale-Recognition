@@ -9,9 +9,7 @@ from app import data, model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'    # Remove Warnings
 tf.logging.set_verbosity(tf.logging.INFO)   # Show Progress Info
 
-
-train_np, test_np, eval_np = data.load_files()
-y_train, y_test = data.get_labels()
+train_np, test_np, y_train, y_test = data.get_data()
 
 train_np = train_np.astype(np.float32)
 test_np = test_np.astype(np.float32)
@@ -37,4 +35,3 @@ input_fn = tf.estimator.inputs.numpy_input_fn(
 
 e = model.evaluate(input_fn=input_fn)
 print("Testing Accuracy:", e['accuracy'])
-
