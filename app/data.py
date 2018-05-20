@@ -19,17 +19,17 @@ split_seed = 0  # During Dev
 df_train = pd.read_csv('data/train.csv')
 df_submission = pd.read_csv('data/submission.csv')
 
-train_images = glob(os.path.join(TRAIN_DIR, '*.jpg'))
-test_images = glob(os.path.join(TEST_DIR, '*.jpg'))
+train_files = glob(os.path.join(TRAIN_DIR, '*.jpg'))
+test_files = glob(os.path.join(TEST_DIR, '*.jpg'))
 
 
 def get_data():
     images, labels = data_augmentation()
 
-    train_img, test_img = split(images)
+    train_images, test_images = split(images)
     train_labels, test_labels = split(labels)
 
-    return train_img, test_img, np.array(train_labels), np.array(test_labels)
+    return train_images, test_images, np.array(train_labels), np.array(test_labels)
 
 
 def data_augmentation():
@@ -39,7 +39,7 @@ def data_augmentation():
     labels = get_labels()
     frequency = df_train['Id'].value_counts().to_dict()
 
-    for file in train_images:
+    for file in train_files:
 
         value_frequency = frequency[df_train.iloc[row]['Id']]
         label = labels[row]
@@ -59,8 +59,8 @@ def data_augmentation():
 
 
 def get_image(file):
-    img = cv2.imread(file)
-    resize_image = cv2.resize(img, (64, 64))
+    image = cv2.imread(file)
+    resize_image = cv2.resize(image, (64, 64))
     return np.array(resize_image)
 
 
@@ -73,31 +73,31 @@ def get_labels():
 def dataframe_to_array():
     df_train['Image'] = df_train['Image'].map(lambda x: '../data/train\\' + x)
     label = dict(zip(df_train['Image'], df_train['Id']))
-    return list(map(label.get, train_images))
+    return list(map(label.get, train_files))
 
 
 def import_eval_images():
-    return np.array([get_image(img) for img in test_images])
+    return np.array([get_image(file) for file in train_files])
 
 
 def save_files():
-    train_np, test_np, train_labels, test_labels = get_data()
+    train_images, test_images, train_labels, test_labels = get_data()
     evalu = import_eval_images()
 
-    np.save('data/train_images.npy', train_np)
-    np.save('data/test_images.npy', test_np)
+    np.save('data/train_images.npy', train_images)
+    np.save('data/test_images.npy', test_images)
     np.save('data/eval.npy', evalu)
     np.save('data/train_labels.npy', train_labels)
     np.save('data/test_labels.npy', test_labels)
 
 
 def load_files():
-    train = np.load('data/train_images.npy')
-    test = np.load('data/test_images.npy')
-    evalu = np.load('data/eval.npy')
+    train_images = np.load('data/train_images.npy')
+    test_images = np.load('data/test_images.npy')
     train_labels = np.load('data/train_labels.npy')
     test_labels = np.load('data/test_labels.npy')
-    return train, test, evalu, train_labels, test_labels
+    # evalu = np.load('data/eval.npy')
+    return train_images, test_images, train_labels, test_labels
 
 
 def split(data):
