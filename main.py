@@ -24,7 +24,7 @@ input_fn = tf.estimator.inputs.numpy_input_fn(
 )
 
 model = tf.estimator.Estimator(model.model_fn)
-model.train(input_fn, steps=10000)
+model.train(input_fn, steps=5000)
 
 input_fn = tf.estimator.inputs.numpy_input_fn(
     x=test_np,

@@ -52,8 +52,7 @@ def model_fn(features, labels, mode):
     if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
 
         onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=N_CLASSES)
-        loss = tf.losses.softmax_cross_entropy(
-            onehot_labels=onehot_labels, logits=logits)
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=onehot_labels, logits=logits)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
             optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.00001)
@@ -70,7 +69,8 @@ def model_fn(features, labels, mode):
         predictions = predictions
 
     estimator_spec = tf.estimator.EstimatorSpec(
-        mode=mode, loss=loss, train_op=train_op, eval_metric_ops=eval_metrics_ops, predictions=predictions
+        mode=mode, loss=loss, train_op=train_op,
+        eval_metric_ops=eval_metrics_ops, predictions=predictions
     )
 
     return estimator_spec
