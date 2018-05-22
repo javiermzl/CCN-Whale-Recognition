@@ -13,6 +13,8 @@ from app import preprocessing as prep
 TRAIN_DIR = '../data/train/'
 TEST_DIR = '../data/test/'
 
+AUG_RANGE = 10
+
 #split_seed = randint(0, 100)
 split_seed = 0  # During Dev
 
@@ -45,9 +47,9 @@ def data_augmentation():
         label = labels[row]
         img = get_image(file)
 
-        if value_frequency < 10:
-            augmented_images += prep.data_augmentation(img, 10 - value_frequency)
-            for i in range(10 - value_frequency):
+        if value_frequency < AUG_RANGE:
+            augmented_images += prep.data_augmentation(img, AUG_RANGE - value_frequency)
+            for _ in range(AUG_RANGE - value_frequency):
                 augmented_labels.append(label)
         else:
             augmented_images.append(prep.rgb_to_gray(img))
