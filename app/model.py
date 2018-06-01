@@ -1,61 +1,52 @@
 import tensorflow as tf
 
-
 N_CLASSES = 810
+NUM_CHANNELS = 32
 
 
 def conv_net(features, mode):
     # Input Layer
-    input_layer = tf.reshape(features, [-1, 64, 64, 1])
+    output = tf.reshape(features, [-1, 64, 64, 1])
 
-    # Convolutional Layers
-    conv1 = tf.layers.conv2d(
-        inputs=input_layer,
-        filters=32,
-        kernel_size=5,
-        padding='same',
-        activation=tf.nn.relu
-    )
-    conv1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=2, strides=2)
-
-    conv2 = tf.layers.conv2d(
-        inputs=conv1,
-        filters=64,
-        kernel_size=5,
-        padding='same',
-        activation=tf.nn.relu
-    )
-    conv2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=2, strides=2)
+    channels = [NUM_CHANNELS, NUM_CHANNELS * 2]
+    for i, c in enumerate(channels):
+        # Convolutional Layers
+        output = tf.layers.conv2d(
+            inputs=output,
+            filters=c,
+            kernel_size=3,
+            padding='same',
+            activation=tf.nn.relu,
+        )
+        output = tf.layers.max_pooling2d(inputs=output, pool_size=2, strides=2)
 
     # Dense Layers
-    dense = tf.layers.flatten(conv2)
+    dense = tf.layers.flatten(output)
 
-    dense = tf.layers.dense(inputs=dense, units=1024, activation=tf.nn.relu)
     dense = tf.layers.dropout(
-        inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN
+        inputs=dense, rate=0.3, training=mode == tf.estimator.ModeKeys.TRAIN
     )
 
     output = tf.layers.dense(inputs=dense, units=N_CLASSES)
+    output = tf.nn.l2_normalize(output, 0)
 
     return output
 
 
 def model_fn(features, labels, mode):
-    logits = conv_net(features, mode)
+    embeddings = conv_net(features, mode)
 
     loss, eval_metrics_ops, train_op = None, None, None
     predictions = {
-        'Classes': tf.argmax(logits, axis=1),
-        'Probabilities': tf.nn.softmax(logits)
+        'Classes': tf.argmax(embeddings, axis=1),
+        'Probabilities': tf.nn.softmax(embeddings)
     }
 
     if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
-
-        onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=N_CLASSES)
-        loss = tf.losses.softmax_cross_entropy(onehot_labels=onehot_labels, logits=logits)
+        loss = tf.contrib.losses.metric_learning.triplet_semihard_loss(labels, embeddings)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
-            optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.00001)
+            optimizer = tf.train.AdamOptimizer(learning_rate=1e-5)
             train_op = optimizer.minimize(
                 loss=loss,
                 global_step=tf.train.get_global_step()
