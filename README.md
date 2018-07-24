@@ -1,2 +1,2 @@
 # TF-ImageRecognition
-Thesis on Neural Networks and Deep Learning with TensorFlow.
+Neural Networks and Deep Learning with TensorFlow.
