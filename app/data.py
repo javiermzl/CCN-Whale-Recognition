@@ -1,28 +1,58 @@
 import os
 
-from random import randint
 from glob import glob
 from sklearn import preprocessing, model_selection
-import pandas as pd
+from pandas import read_csv
 import numpy as np
 import cv2
 
 from app import preprocessing as prep
+from app.hash import excluded_duplicates
 
 
 TRAIN_DIR = '../data/train/'
 TEST_DIR = '../data/test/'
 
-AUG_RANGE = 10
+AUG_RANGE = 20
 
-#split_seed = randint(0, 100)
-split_seed = 0  # During Dev
+split_seed = 0
 
-df_train = pd.read_csv('data/train.csv')
-df_submission = pd.read_csv('data/submission.csv')
+df_train = read_csv('data/train.csv')
+df_submission = read_csv('data/submission.csv')
 
 train_files = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_files = glob(os.path.join(TEST_DIR, '*.jpg'))
+
+
+def not_fit_images():
+    excluded = open('data/not_fit.txt', 'r').read().split('\n')
+    return excluded
+
+
+def single_whales():
+    single = []
+    frecuency = whale_frecuencies()
+    for whale, value in frecuency.items():
+        if value <= 1:
+            single.append(whale)
+    return single
+
+
+def train_whales():
+    excluded = not_fit_images() + excluded_duplicates()
+    single = single_whales()
+    whales = {}
+    dict_t = dict_train()
+
+    for file, whale in dict_t.items():
+        if whale != 'new_whale' and whale not in single and file not in excluded:
+            whales[file] = whale
+
+    return whales
+
+
+def whale_frecuencies():
+    return df_train['Id'].value_counts().to_dict()
 
 
 def get_data():
@@ -36,28 +66,40 @@ def get_data():
 
 def data_augmentation():
     augmented_images, augmented_labels = [], []
-    row = 0
 
-    labels = get_labels()
-    frequency = df_train['Id'].value_counts().to_dict()
+    train = train_whales()
+    frequency = whale_frecuencies()
+    indices, _ = encode_labels(list(train.values()))
 
-    for file in train_files:
-
-        value_frequency = frequency[df_train.iloc[row]['Id']]
-        label = labels[row]
-        img = get_image(file)
+    for row, (file, whale) in enumerate(train.items()):
+        encoded = indices[row]
+        value_frequency = frequency[whale]
+        img = get_image(TRAIN_DIR + file)
 
         if value_frequency < AUG_RANGE:
             augmented_images += prep.data_augmentation(img, AUG_RANGE - value_frequency)
             for _ in range(AUG_RANGE - value_frequency):
-                augmented_labels.append(label)
+                augmented_labels.append(encoded)
         else:
             augmented_images.append(prep.rgb_to_gray(img))
-            augmented_labels.append(label)
-
-        row += 1
+            augmented_labels.append(encoded)
 
     return np.array(augmented_images), augmented_labels
+
+
+def images_per_whales():
+    train_whale = train_whales()
+    dict_t = dict_train()
+    associated = {}
+
+    for image, whale in dict_t.items():
+        if whale in train_whale:
+            if whale not in associated:
+                associated[whale] = []
+            if image not in associated[whale]:
+                associated[whale].append(image)
+
+    return associated
 
 
 def get_image(file):
@@ -66,20 +108,19 @@ def get_image(file):
     return np.array(resize_image)
 
 
-def get_labels():
-    labels = dataframe_to_array()
-    indices = preprocessing.LabelEncoder().fit_transform(labels)
-    return indices
+def encode_labels(labels):
+    label_econder = preprocessing.LabelEncoder()
+    indices = label_econder.fit_transform(labels)
+
+    return indices, label_econder
 
 
-def dataframe_to_array():
-    df_train['Image'] = df_train['Image'].map(lambda x: '../data/train\\' + x)
-    label = dict(zip(df_train['Image'], df_train['Id']))
-    return list(map(label.get, train_files))
+def dict_train():
+    return dict([(img, whale) for _, img, whale in df_train.to_records()])
 
 
 def import_eval_images():
-    return np.array([get_image(file) for file in train_files])
+    return np.array([get_image(file) for file in test_files])
 
 
 def save_files():
@@ -93,12 +134,17 @@ def save_files():
     np.save('data/test_labels.npy', test_labels)
 
 
+def import_eval_files():
+    evalu = np.load('data/eval.npy')
+    dict_eval = dict([(img, whales) for _, img, whales in df_submission.to_records()])
+    return evalu, list(dict_eval.keys())
+
+
 def load_files():
     train_images = np.load('data/train_images.npy')
     test_images = np.load('data/test_images.npy')
     train_labels = np.load('data/train_labels.npy')
     test_labels = np.load('data/test_labels.npy')
-    # evalu = np.load('data/eval.npy')
     return train_images, test_images, train_labels, test_labels
 
 
