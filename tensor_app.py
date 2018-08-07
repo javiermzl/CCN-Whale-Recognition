@@ -10,11 +10,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'    # Remove Warnings
 tf.logging.set_verbosity(tf.logging.INFO)   # Show Progress Info
 
 
-def highest_probabilities(images, predictions):
+def highest_probabilities(predictions):
     highest = []
-    for image, p in zip(images, predictions):
+    for p in predictions:
         probabilities = p['Probabilities']
-
+        print(probabilities)
         idx = np.argmax(probabilities)
         probabilities[idx] = 0
         idx2 = np.argmax(probabilities)
@@ -24,14 +24,14 @@ def highest_probabilities(images, predictions):
         idx4 = np.argmax(probabilities)
         probabilities[idx4] = 0
         idx5 = np.argmax(probabilities)
-        print([idx, idx2, idx3, idx4, idx5])
+
         highest.append([idx, idx2, idx3, idx4, idx5])
 
     return highest
 
 
 def reverse_label(probabilities):
-    _, encoder = data.encode_labels(list(data.train_whales().values()))
+    _, encoder = data.encode_labels(list(data.dict_train().values()))
     labels = []
     for p in probabilities:
         labels.append(encoder.inverse_transform(p))
@@ -39,26 +39,24 @@ def reverse_label(probabilities):
 
 
 if __name__ == '__main__':
-    train_images, test_images, train_labels, test_labels = data.load_files()
+    train, train_labels = data.gen_raw_data()
 
-    train_images = train_images.astype(np.float32)
-    test_images = test_images.astype(np.float32)
-
-    model = tf.estimator.Estimator(model_fn, model_dir='models/whale_model/')
+    model = tf.estimator.Estimator(model_fn)#, model_dir='models/whale_model/')
 
     input_fn = tf.estimator.inputs.numpy_input_fn(
-        x=train_images,
+        x=train,
         y=train_labels,
-        batch_size=128,
+        batch_size=100,
         shuffle=True,
-        num_epochs=50
+        num_epochs=100,
     )
-    model.train(input_fn=input_fn, steps=20000)
+
+    model.train(input_fn=input_fn)
 
     input_fn = tf.estimator.inputs.numpy_input_fn(
-        x=test_images,
-        y=test_labels,
-        batch_size=128,
+        x=train,
+        y=train_labels,
+        batch_size=100,
         num_epochs=1,
         shuffle=False,
     )
@@ -74,7 +72,11 @@ if __name__ == '__main__':
         shuffle=False
     )
     predictions = model.predict(input_fn=input_fn)
-
-    #h_p = highest_probabilities(eval_labels, predictions)
-    #h_l = reverse_label(h_p)
-
+    h_p = highest_probabilities(predictions)
+    for a in h_p:
+        print(a)
+    '''
+    h_l = reverse_label(h_p)
+    for a in h_l:
+        print(a)
+    '''
