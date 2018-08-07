@@ -450,7 +450,7 @@ class Model(object):
         """
 
         return tf.variable_scope('resnet_model',
-                                 custom_getter=self._custom_dtype_getter)
+                                 custom_getter=self._custom_dtype_getter, reuse=tf.AUTO_REUSE)
 
     def __call__(self, inputs, training):
         """Add operations to classify a batch of input images.
@@ -514,5 +514,6 @@ class Model(object):
 
             inputs = tf.reshape(inputs, [-1, self.final_size])
             inputs = tf.layers.dense(inputs=inputs, units=self.num_classes)
+            inputs = tf.nn.l2_normalize(inputs)
             inputs = tf.identity(inputs, 'final_dense')
             return inputs

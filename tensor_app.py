@@ -2,6 +2,7 @@ import os
 
 import tensorflow as tf
 import numpy as np
+import csv
 
 from app.model import model_fn
 from app import data
@@ -12,9 +13,9 @@ tf.logging.set_verbosity(tf.logging.INFO)   # Show Progress Info
 
 def highest_probabilities(predictions):
     highest = []
+    print('Extracting Probabilities')
     for p in predictions:
         probabilities = p['Probabilities']
-        print(probabilities)
         idx = np.argmax(probabilities)
         probabilities[idx] = 0
         idx2 = np.argmax(probabilities)
@@ -33,15 +34,31 @@ def highest_probabilities(predictions):
 def reverse_label(probabilities):
     _, encoder = data.encode_labels(list(data.dict_train().values()))
     labels = []
+    print('Reversing Labels')
     for p in probabilities:
         labels.append(encoder.inverse_transform(p))
     return labels
 
 
+def sub_file(pred):
+    file = open('data/sub_tensor.csv', mode='w', newline='')
+    colums = ['Image', 'Id']
+
+    print('Writing File')
+    writer = csv.writer(file, delimiter=',')
+    writer.writerow(colums)
+
+    for row, i in enumerate(data.test_files):
+        ids = str(pred[row][0]) + ' ' + str(pred[row][1]) + ' ' + \
+              str(pred[row][2]) + ' ' + str(pred[row][3]) + ' ' + str(pred[row][4])
+        result = [i[13:], ids]
+        writer.writerow(result)
+
+
 if __name__ == '__main__':
     train, train_labels = data.gen_raw_data()
 
-    model = tf.estimator.Estimator(model_fn)#, model_dir='models/whale_model/')
+    model = tf.estimator.Estimator(model_fn, model_dir='models/whale_model/')
 
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x=train,
@@ -64,7 +81,7 @@ if __name__ == '__main__':
     print("Testing Accuracy:", e['accuracy'])
 
     eval_images, eval_labels = data.import_eval_files()
-    eval_images = eval_images.astype(np.float32)
+    # eval_images = eval_images.astype(np.float32)
 
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x=eval_images,
@@ -73,10 +90,5 @@ if __name__ == '__main__':
     )
     predictions = model.predict(input_fn=input_fn)
     h_p = highest_probabilities(predictions)
-    for a in h_p:
-        print(a)
-    '''
     h_l = reverse_label(h_p)
-    for a in h_l:
-        print(a)
-    '''
+    sub_file(h_l)

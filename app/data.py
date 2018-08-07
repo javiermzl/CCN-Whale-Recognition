@@ -4,7 +4,9 @@ from glob import glob
 from sklearn import preprocessing, model_selection
 from pandas import read_csv
 import numpy as np
-import cv2
+from PIL import Image
+from tensorflow.keras.preprocessing.image import img_to_array
+
 
 from app import preprocessing as prep
 from app.hash import excluded_duplicates
@@ -18,10 +20,12 @@ AUG_RANGE = 20
 split_seed = 0
 
 df_train = read_csv('data/train.csv')
-df_submission = read_csv('data/submission.csv')
+df_submission = read_csv('data/sub_tensor.csv')
 
 train_files = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_files = glob(os.path.join(TEST_DIR, '*.jpg'))
+
+encoder = None
 
 
 def not_fit_images():
@@ -88,12 +92,12 @@ def data_augmentation():
 
 
 def images_per_whales():
-    train_whale = train_whales()
     dict_t = dict_train()
     associated = {}
+    t_w = train_whales().values()
 
     for image, whale in dict_t.items():
-        if whale in train_whale:
+        if whale in t_w:
             if whale not in associated:
                 associated[whale] = []
             if image not in associated[whale]:
@@ -102,17 +106,100 @@ def images_per_whales():
     return associated
 
 
-def get_image(file):
-    image = cv2.imread(file)
-    resize_image = cv2.resize(image, (64, 64))
-    return np.array(resize_image)
+def triplet_gen():
+    img_per_whales = images_per_whales()
+    positive, anchor, negative = [], [], []
+
+    for whale, images in img_per_whales.items():
+        p, n = whale, images
+        for img in images:
+            while p is whale:
+                p = np.random.choice(images)
+            while n is images:
+                n = np.random.choice(list(img_per_whales.values()))
+
+            anchor.append(img)
+            positive.append(p)
+            negative.append(np.random.choice(n))
+
+    return anchor, positive, negative
+
+
+def triplet_labels():
+    img_per_whales = images_per_whales()
+    labels = []
+    for whale, images in img_per_whales.items():
+        for _ in images:
+            labels.append(whale)
+    return np.array(labels)
+
+
+def triplet_images():
+    anchor, positive, negative = triplet_gen()
+
+    anchor = read_triplets(anchor)
+    positive = read_triplets(positive)
+    #negative = read_triplets(negative)
+
+    return anchor, positive
+
+
+def read_triplets(images):
+    img = []
+    for image in images:
+        img.append(get_image(TRAIN_DIR + image, False))
+    return img
+
+
+def gen_data():
+    a, p = triplet_images()
+    a, p = np.array(a), np.array(p)
+
+    labels = triplet_labels()
+
+    labels, _ = encode_labels(labels)
+
+    train_dict = {'Anchor': a, 'Positive': p}
+
+    return train_dict, labels
+
+
+def gen_raw_data():
+    a = []
+    for img in train_files:
+        a.append(get_image(img, False))
+    a = np.array(a)
+    labels = np.array(list(dict_train().values()))
+
+    labels, _ = encode_labels(labels)
+
+    return a, labels
+
+
+def get_image(file, process):
+    image = Image.open(file).convert('L')
+    image = image.resize((100, 100))
+    image = img_to_array(image)
+
+    if process:
+        image = prep.transform_image(image)
+
+    # Normalization
+    image -= np.mean(image, keepdims=True)
+    image /= np.std(image, keepdims=True)
+
+    return image
 
 
 def encode_labels(labels):
     label_econder = preprocessing.LabelEncoder()
     indices = label_econder.fit_transform(labels)
 
-    return indices, label_econder
+    ohe = preprocessing.OneHotEncoder(sparse=False)
+    integer_encoded = indices.reshape(len(indices), 1)
+    onehot_encoded = ohe.fit_transform(integer_encoded)
+
+    return onehot_encoded, label_econder
 
 
 def dict_train():
@@ -120,7 +207,7 @@ def dict_train():
 
 
 def import_eval_images():
-    return np.array([get_image(file) for file in test_files])
+    return np.array([get_image(file, False) for file in test_files])
 
 
 def save_files():
@@ -135,7 +222,7 @@ def save_files():
 
 
 def import_eval_files():
-    evalu = np.load('data/eval.npy')
+    evalu = import_eval_images()
     dict_eval = dict([(img, whales) for _, img, whales in df_submission.to_records()])
     return evalu, list(dict_eval.keys())
 
@@ -149,4 +236,4 @@ def load_files():
 
 
 def split(data):
-    return model_selection.train_test_split(data, test_size=0.2, shuffle=False, random_state=split_seed)
+    return model_selection.train_test_split(data, test_size=0.1, shuffle=False, random_state=split_seed)

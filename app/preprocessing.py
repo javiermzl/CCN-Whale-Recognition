@@ -19,7 +19,7 @@ def rotate_image(img):
 def transform_image(img):
     img = rotate_image(img)
     img = zoom_image(img)
-    img = rgb_to_gray(img)
+    # img = rgb_to_gray(img)
     return img
 
 
