@@ -15,14 +15,14 @@ SPLIT_SEED = randint(0, 99)
 TRAIN_DIR = '../data/train/'
 TEST_DIR = '../data/test/'
 
-train_files = glob(os.path.join(TRAIN_DIR, '*.jpg'))
-test_files = glob(os.path.join(TEST_DIR, '*.jpg'))
+TRAIN_FILES = glob(os.path.join(TRAIN_DIR, '*.jpg'))
+TEST_FILES = glob(os.path.join(TEST_DIR, '*.jpg'))
 
-df_train = read_csv('data/train.csv')
+DF_TRAIN = read_csv('data/train.csv')
 
 
 def generate_train_files():
-    images = np.array([read_image(file) for file in train_files])
+    images = np.array([read_image(file) for file in TRAIN_FILES])
     text_labels = np.array(list(dict_train().values()))
 
     labels, _ = encode_labels(text_labels)
@@ -40,7 +40,7 @@ def generate_train_files_split():
 
 
 def generate_eval_images():
-    return np.array([read_image(file) for file in test_files])
+    return np.array([read_image(file) for file in TEST_FILES])
 
 
 def encode_labels(labels):
@@ -62,7 +62,7 @@ def one_hot_encode(labels):
 
 
 def dict_train():
-    return dict([(img, whale) for _, img, whale in df_train.to_records()])
+    return dict([(img, whale) for _, img, whale in DF_TRAIN.to_records()])
 
 
 def save_files():

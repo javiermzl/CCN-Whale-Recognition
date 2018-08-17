@@ -1,6 +1,6 @@
 import numpy as np
 
-from app.data import dict_train, df_train, encode_labels, TRAIN_DIR
+from app.data import dict_train, encode_labels, TRAIN_DIR, DF_TRAIN
 from app.utils.image_hash import excluded_duplicates
 from app.image import data_augmentation, read_image
 
@@ -54,7 +54,7 @@ def train_whales():
 
 
 def whale_frecuencies():
-    return df_train['Id'].value_counts().to_dict()
+    return DF_TRAIN['Id'].value_counts().to_dict()
 
 
 def images_per_whales():
