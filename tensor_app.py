@@ -15,7 +15,7 @@ if __name__ == '__main__':
     train, train_labels = gen_raw_data()
 
     model = tf.estimator.Estimator(model_fn, model_dir='models/tensor/')
-    '''
+
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x=train,
         y=train_labels,
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     )
     e = model.evaluate(input_fn=input_fn)
     print("Testing Accuracy:", e['accuracy'])
-    '''
+
     eval_images, eval_labels = import_eval_files()
 
     input_fn = tf.estimator.inputs.numpy_input_fn(

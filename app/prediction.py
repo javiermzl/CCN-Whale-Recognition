@@ -9,6 +9,7 @@ import types
 def extract_probabilities(predictions):
     print('Extracting Probabilities')
 
+    # TensorFlow Prediction Type
     if isinstance(predictions, types.GeneratorType):
         predictions = [prob['Probabilities'] for prob in predictions]
 
@@ -18,13 +19,13 @@ def extract_probabilities(predictions):
 
 
 def highest_probabilities(prob):
-    idx1, prob = minimize_maximum(prob)
-    idx2, prob = minimize_maximum(prob)
-    idx3, prob = minimize_maximum(prob)
-    idx4, prob = minimize_maximum(prob)
-    idx5, prob = minimize_maximum(prob)
+    probabilities = []
 
-    return [idx1, idx2, idx3, idx4, idx5]
+    for _ in range(5):
+        maximum, prob = minimize_maximum(prob)
+        probabilities.append(maximum)
+
+    return probabilities
 
 
 def minimize_maximum(array):
