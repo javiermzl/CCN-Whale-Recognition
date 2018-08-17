@@ -7,7 +7,6 @@ import numpy as np
 def read_image(file):
     image = open_image(file)
     image = normalize_image(image)
-
     return image
 
 

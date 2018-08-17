@@ -9,6 +9,9 @@ from pandas import read_csv
 from app.image import read_image
 
 
+# Random Seed pre-generated so both split(images and labels) behave equally
+SPLIT_SEED = randint(0, 99)
+
 TRAIN_DIR = '../data/train/'
 TEST_DIR = '../data/test/'
 
@@ -16,9 +19,6 @@ train_files = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_files = glob(os.path.join(TEST_DIR, '*.jpg'))
 
 df_train = read_csv('data/train.csv')
-
-# Random Seed pre-generated so both split(images and labels) behave equally
-split_seed = randint(0, 99)
 
 
 def generate_train_files():
@@ -85,4 +85,4 @@ def load_eval_images():
 
 
 def split(data):
-    return model_selection.train_test_split(data, test_size=0.1, shuffle=False, random_state=split_seed)
+    return model_selection.train_test_split(data, test_size=0.1, shuffle=False, random_state=SPLIT_SEED)
