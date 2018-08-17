@@ -28,4 +28,4 @@ def rgb_to_gray(img):
 
 
 def data_augmentation(img, iterations):
-    return [transform_image(img) * 255 for _ in range(iterations)]
+    return [transform_image(img) for _ in range(iterations)]

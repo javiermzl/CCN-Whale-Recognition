@@ -20,7 +20,7 @@ AUG_RANGE = 20
 split_seed = 0
 
 df_train = read_csv('data/train.csv')
-df_submission = read_csv('data/sub_tensor.csv')
+df_submission = read_csv('data/submission.csv')
 
 train_files = glob(os.path.join(TRAIN_DIR, '*.jpg'))
 test_files = glob(os.path.join(TEST_DIR, '*.jpg'))

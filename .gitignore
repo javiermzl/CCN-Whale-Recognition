@@ -1,5 +1,6 @@
 .vscode/*
 .idea/*
 app/__pycache__/
+app/networks/__pycache__/
 data/*.npy
 models/*

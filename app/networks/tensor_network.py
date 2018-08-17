@@ -7,7 +7,6 @@ def net(inputs, mode):
         filters=32,
         kernel_size=[7, 7],
         padding="same",
-        activation=tf.nn.relu,
     )
 
     logits = tf.layers.batch_normalization(logits, axis=3)
@@ -19,8 +18,8 @@ def net(inputs, mode):
         filters=64,
         kernel_size=[3, 3],
         padding="same",
+        activation=tf.nn.relu
     )
-    logits = tf.nn.relu(logits)
     logits = tf.layers.average_pooling2d(inputs=logits, pool_size=[3, 3], strides=3)
 
     logits = tf.layers.flatten(logits)

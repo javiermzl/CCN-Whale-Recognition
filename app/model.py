@@ -1,8 +1,8 @@
 import tensorflow as tf
 from tensorflow.keras.backend import categorical_crossentropy
-from app.network import net
+from app.networks.tensor_network import net
 
-N_CLASSES = 4251
+
 IMAGE_SIZE = 100
 
 
