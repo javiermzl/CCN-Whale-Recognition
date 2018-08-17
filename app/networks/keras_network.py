@@ -3,6 +3,9 @@ from tensorflow.keras.layers import Activation, BatchNormalization, Conv2D, Dens
     Flatten, MaxPooling2D, AveragePooling2D, Dropout
 
 
+NUMBER_CLASSES = 4251
+
+
 def net():
     network = Sequential()
 
@@ -19,6 +22,6 @@ def net():
     network.add(Flatten())
     network.add(Dense(500, activation="relu", name='rl'))
     network.add(Dropout(0.65))
-    network.add(Dense(4251, activation='softmax', name='sm'))
+    network.add(Dense(NUMBER_CLASSES, activation='softmax', name='sm'))
 
     return network

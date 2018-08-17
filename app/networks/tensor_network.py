@@ -1,6 +1,9 @@
 import tensorflow as tf
 
 
+NUMBER_CLASSES = 4251
+
+
 def net(inputs, mode):
     logits = tf.layers.conv2d(
         inputs=inputs,
@@ -28,7 +31,7 @@ def net(inputs, mode):
         inputs=logits, rate=0.65, training=mode == tf.estimator.ModeKeys.TRAIN
     )
     logits = tf.layers.dense(
-        inputs=logits, units=4251, activation=tf.nn.softmax
+        inputs=logits, units=NUMBER_CLASSES, activation=tf.nn.softmax
     )
 
     return logits

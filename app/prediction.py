@@ -1,9 +1,9 @@
+import types
+
 import numpy as np
 import csv
 
 from app.data import encode_labels, dict_train, test_files
-
-import types
 
 
 def extract_probabilities(predictions):

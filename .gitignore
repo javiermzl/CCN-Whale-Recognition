@@ -2,5 +2,6 @@
 .idea/*
 app/__pycache__/
 app/networks/__pycache__/
-data/*.npy
+app/utils/__pycache__/
+data/images/*.npy
 models/*

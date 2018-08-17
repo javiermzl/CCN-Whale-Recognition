@@ -1,9 +1,9 @@
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 
+from app.data import generate_train_files, generate_eval_images
 from app.prediction import generate_submission
 from app.networks.keras_network import net
-from app import data
 
 
 def train():
@@ -13,10 +13,11 @@ def train():
     )
 
     print('Importing Data')
-    images, labels = data.gen_raw_data()
+    images, labels = generate_train_files()
 
     model.fit(images, labels, epochs=150, batch_size=100, verbose=1)
     model.save('models/keras/whale_model.h5')
+
     return model
 
 
@@ -25,11 +26,12 @@ def recover_model():
 
 
 def predict(model):
-    eval_x, eval_labels = data.import_eval_files()
+    eval_x = generate_eval_images()
     return model.predict(eval_x)
 
 
-mod = train()
-# mod = recover_model()
-predictions = predict(mod)
-generate_submission(predictions)
+if __name__ == '__main__':
+    mod = train()
+    # mod = recover_model()
+    predictions = predict(mod)
+    generate_submission(predictions)

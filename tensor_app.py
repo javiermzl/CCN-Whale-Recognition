@@ -2,8 +2,8 @@ import os
 
 import tensorflow as tf
 
+from app.data import generate_train_files, generate_eval_images
 from app.model import model_fn
-from app.data import import_eval_files, gen_raw_data
 from app.prediction import generate_submission
 
 
@@ -12,7 +12,7 @@ tf.logging.set_verbosity(tf.logging.INFO)   # Show Progress Info
 
 
 if __name__ == '__main__':
-    train, train_labels = gen_raw_data()
+    train, train_labels = generate_train_files()
 
     model = tf.estimator.Estimator(model_fn, model_dir='models/tensor/')
 
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     e = model.evaluate(input_fn=input_fn)
     print("Testing Accuracy:", e['accuracy'])
 
-    eval_images, eval_labels = import_eval_files()
+    eval_images = generate_eval_images()
 
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x=eval_images,
