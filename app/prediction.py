@@ -3,7 +3,7 @@ import types
 import numpy as np
 import csv
 
-from app.data import encode_labels, dict_train, test_files
+from app.data import encode_labels, dict_train, TEST_FILES
 
 
 def extract_probabilities(predictions):
@@ -50,7 +50,7 @@ def create_file(predictions):
     print('Writing File')
     writer.writerow(['Image', 'Id'])
 
-    for row, file in enumerate(test_files):
+    for row, file in enumerate(TEST_FILES):
         ids = format_row(predictions[row])
         file_name = file[13:]
 

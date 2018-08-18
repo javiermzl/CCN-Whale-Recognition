@@ -1,5 +1,4 @@
-from tensorflow.python.keras.preprocessing.image import random_rotation, random_zoom
-from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing.image import img_to_array, random_rotation, random_zoom
 from PIL import Image
 import numpy as np
 

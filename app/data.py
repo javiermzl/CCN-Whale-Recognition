@@ -22,6 +22,8 @@ DF_TRAIN = read_csv('data/train.csv')
 
 
 def generate_train_files():
+    print('Importing Data')
+
     images = np.array([read_image(file) for file in TRAIN_FILES])
     text_labels = np.array(list(dict_train().values()))
 

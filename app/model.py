@@ -11,7 +11,7 @@ def model_fn(features, labels, mode):
 
     logits = net(features, mode)
 
-    loss, eval_metrics_ops, train_op, logging_hook = None, None, None, None
+    loss, eval_metrics_ops, train_op = None, None, None
     predictions = {
         'Classes': tf.argmax(logits, axis=1),
         'Probabilities': tf.nn.softmax(logits)
