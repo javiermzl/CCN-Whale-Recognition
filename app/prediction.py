@@ -44,7 +44,7 @@ def reverse_labels(probabilities):
 
 
 def create_file(predictions):
-    file = open('data/submission.csv', mode='w', newline='')
+    file = open('data/output.csv', mode='w', newline='')
     writer = csv.writer(file, delimiter=',')
 
     print('Writing File')

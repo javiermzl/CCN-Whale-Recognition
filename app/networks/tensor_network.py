@@ -10,12 +10,11 @@ def net(inputs, mode):
         filters=32,
         kernel_size=[7, 7],
         padding="same",
+        activation=tf.nn.relu
     )
-
     logits = tf.layers.batch_normalization(logits, axis=3)
-    logits = tf.nn.relu(logits)
-
     logits = tf.layers.max_pooling2d(inputs=logits, pool_size=[2, 2], strides=[2, 2])
+
     logits = tf.layers.conv2d(
         inputs=logits,
         filters=64,

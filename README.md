@@ -1,2 +1,2 @@
 # Image-Recognition
-Neural Networks and Deep Learning with TensorFlow and Keras.
+Convolutional Neural Network with TensorFlow and Keras for image classification.

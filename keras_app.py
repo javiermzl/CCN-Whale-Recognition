@@ -19,11 +19,11 @@ def model():
 
 def train(x, y):
     model.fit(x, y, epochs=150, batch_size=100, verbose=1)
-    model.save('models/keras/whale_model.h5')
+    model.save('models/keras/model.h5')
 
 
 def load_trained_model():
-    return load_model('models/keras/whale_model.h5')
+    return load_model('models/keras/model.h5')
 
 
 def predict(images):

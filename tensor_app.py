@@ -24,7 +24,7 @@ def train_model(x, y):
         y=y,
         batch_size=100,
         shuffle=True,
-        num_epochs=100,
+        num_epochs=150,
     )
     model.train(input_fn=input_fn)
 
