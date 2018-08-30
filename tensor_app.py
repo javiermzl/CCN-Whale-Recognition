@@ -22,9 +22,9 @@ def train_model(x, y):
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x=x,
         y=y,
-        batch_size=100,
+        batch_size=128,
         shuffle=True,
-        num_epochs=150,
+        num_epochs=100,
     )
     model.train(input_fn=input_fn)
 
@@ -33,7 +33,7 @@ def evaluate_model(x, y):
     input_fn = tf.estimator.inputs.numpy_input_fn(
         x=x,
         y=y,
-        batch_size=100,
+        batch_size=128,
         num_epochs=1,
         shuffle=False,
     )

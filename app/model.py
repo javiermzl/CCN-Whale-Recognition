@@ -31,6 +31,11 @@ def model_fn(features, labels, mode):
         accuracy = tf.metrics.accuracy(labels=tf.argmax(labels, axis=1), predictions=predictions['Classes'])
         eval_metrics_ops = {'accuracy': accuracy}
 
+        # Tensorboard
+        train_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
+        ac = tf.reduce_mean(tf.cast(train_prediction, tf.float32))
+        tf.summary.scalar('Training Accuracy', ac)
+
     elif mode == tf.estimator.ModeKeys.PREDICT:
         predictions = predictions
 

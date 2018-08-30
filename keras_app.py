@@ -18,7 +18,7 @@ def model():
 
 
 def train(x, y):
-    model.fit(x, y, epochs=150, batch_size=100, verbose=1)
+    model.fit(x, y, epochs=100, batch_size=128, verbose=1)
     model.save('models/keras/model.h5')
 
 
