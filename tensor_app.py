@@ -2,7 +2,7 @@ import os
 
 import tensorflow as tf
 
-from app.data import generate_train_files, generate_eval_images
+from app.data import train_files, test_images
 from app.model import model_fn
 from app.prediction import generate_submission
 
@@ -55,12 +55,11 @@ if __name__ == '__main__':
     model = model()
 
     if TRAIN_MODEL:
-        # Split for Train and Eval -> generate_train_files_split
-        train_images, train_labels = generate_train_files()
+        train_images, train_labels = train_files()
 
         train_model(train_images, train_labels)
         evaluate_model(train_images, train_labels)
 
-    eval_images = generate_eval_images()
-    predictions = predict(eval_images)
+    test_images = test_images()
+    predictions = predict(test_images)
     generate_submission(predictions)

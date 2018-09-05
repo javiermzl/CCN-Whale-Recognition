@@ -10,7 +10,7 @@ def net():
     network = Sequential()
 
     network.add(Conv2D(32, (7, 7), strides=(1, 1), name='conv0', input_shape=(100, 100, 1)))
-    network.add(BatchNormalization(axis=3, name='bn0'))
+    network.add(BatchNormalization(axis=3, name='bn'))
     network.add(Activation('relu'))
     network.add(MaxPooling2D((2, 2), name='max_pool'))
 
@@ -19,8 +19,8 @@ def net():
     network.add(AveragePooling2D((3, 3), name='avg_pool'))
 
     network.add(Flatten())
-    network.add(Dense(400, activation="relu", name='rl'))
-    network.add(Dropout(0.65))
-    network.add(Dense(NUMBER_CLASSES, activation='softmax', name='sm'))
+    network.add(Dense(450, activation="relu", name='ReLU'))
+    network.add(Dropout(0.8))
+    network.add(Dense(NUMBER_CLASSES, activation='softmax', name='softmax'))
 
     return network

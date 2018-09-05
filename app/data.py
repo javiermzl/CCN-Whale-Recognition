@@ -6,42 +6,80 @@ from glob import glob
 from sklearn import preprocessing, model_selection
 from pandas import read_csv
 
-from app.image import read_image
+from app.image import read_image, data_augmentation
 
 
-# Random Seed pre-generated so both split(images and labels) behave equally
 SPLIT_SEED = randint(0, 99)
+MAX_AUG_RANGE = 30
 
-TRAIN_DIR = '../data/train/'
-TEST_DIR = '../data/test/'
-
-TRAIN_FILES = glob(os.path.join(TRAIN_DIR, '*.jpg'))
-TEST_FILES = glob(os.path.join(TEST_DIR, '*.jpg'))
+TRAIN_FILES = glob(os.path.join('../data/train/', '*.jpg'))
+TEST_FILES = glob(os.path.join('../data/test/', '*.jpg'))
 
 DF_TRAIN = read_csv('data/train.csv')
 
 
-def generate_train_files():
-    print('Importing Data')
+def whale_frecuencies():
+    return DF_TRAIN['Id'].value_counts().to_dict()
+
+
+def images_per_whales(whales_dict):
+    whales = {}
+    for image, whale in whales_dict.items():
+        if whale not in whales:
+            whales[whale] = []
+        if image not in whales[whale]:
+            whales[whale].append(image)
+    return whales
+
+
+def augmented_data():
+    images, labels = [], []
+    frequency = whale_frecuencies()
+    train_dict = train_dictionary()
+    indices, _ = encode_labels(np.array(list(train_dict.values())))
+    img_per_whale = images_per_whales(train_dict)
+
+    for row, (file, whale) in enumerate(train_dict.items()):
+        label = indices[row]
+        image = read_image('../data/train/' + file)
+
+        images.append(image)
+        labels.append(label)
+
+        if frequency[whale] < MAX_AUG_RANGE:
+            aug_range = MAX_AUG_RANGE - frequency[whale] - 1
+
+            images += data_augmentation(img_per_whale[whale], aug_range)
+            for _ in range(aug_range):
+                labels.append(label)
+
+            frequency[whale] = MAX_AUG_RANGE
+
+    return np.array(images), np.array(labels)
+
+
+def train_files():
+    print('Importing Train Data')
 
     images = np.array([read_image(file) for file in TRAIN_FILES])
-    text_labels = np.array(list(dict_train().values()))
+    text_labels = np.array(list(train_dictionary().values()))
 
     labels, _ = encode_labels(text_labels)
 
     return images, labels
 
 
-def generate_train_files_split():
-    images, labels = generate_train_files()
+def train_eval_files():
+    images, labels = load_train_files()
 
-    train_images, test_images = split(images)
-    train_labels, test_labels = split(labels)
+    train_images, eval_images = split(images)
+    train_labels, eval_labels = split(labels)
 
-    return train_images, test_images, train_labels, test_labels
+    return train_images, train_labels, eval_images, eval_labels
 
 
-def generate_eval_images():
+def test_images():
+    print('Importing Test Data')
     return np.array([read_image(file) for file in TEST_FILES])
 
 
@@ -63,13 +101,13 @@ def one_hot_encode(labels):
     return one_hot_labels
 
 
-def dict_train():
+def train_dictionary():
     return dict([(img, whale) for _, img, whale in DF_TRAIN.to_records()])
 
 
 def save_files():
-    train_images, train_labels = generate_train_files()
-    eval_images = generate_eval_images()
+    train_images, train_labels = train_files()
+    eval_images = test_images()
 
     np.save('data/images/train_images.npy', train_images)
     np.save('data/images/train_labels.npy', train_labels)

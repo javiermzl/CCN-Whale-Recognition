@@ -3,7 +3,7 @@ import types
 import numpy as np
 import csv
 
-from app.data import encode_labels, dict_train, TEST_FILES
+from app.data import encode_labels, train_dictionary, TEST_FILES
 
 
 def extract_probabilities(predictions):
@@ -37,7 +37,7 @@ def minimize_maximum(array):
 def reverse_labels(probabilities):
     print('Reversing Labels')
 
-    _, encoder = encode_labels(list(dict_train().values()))
+    _, encoder = encode_labels(list(train_dictionary().values()))
     labels = [encoder.inverse_transform(prob) for prob in probabilities]
 
     return labels
