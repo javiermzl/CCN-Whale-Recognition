@@ -111,7 +111,7 @@ def save_files():
 
     np.save('data/images/train_images.npy', train_images)
     np.save('data/images/train_labels.npy', train_labels)
-    np.save('data/images/eval_images.npy', eval_images)
+    np.save('data/images/test_images.npy', eval_images)
 
 
 def load_train_files():
@@ -120,8 +120,8 @@ def load_train_files():
     return train_images, train_labels
 
 
-def load_eval_images():
-    return np.load('data/images/train_images.npy')
+def load_test_images():
+    return np.load('data/images/test_images.npy')
 
 
 def split(data):
