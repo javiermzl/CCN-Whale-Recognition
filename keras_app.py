@@ -4,9 +4,7 @@ from tensorflow.keras.optimizers import Adam
 from app.data import train_files, test_images
 from app.prediction import generate_submission
 from app.networks.keras_network import net
-
-
-TRAIN_MODEL = True
+from app.arguments import arguments
 
 
 def model():
@@ -36,7 +34,9 @@ def predict(images):
 
 
 if __name__ == '__main__':
-    if TRAIN_MODEL:
+    train = arguments()
+
+    if train:
         model = model()
         train_images, train_labels = train_files()
         train(train_images, train_labels)
