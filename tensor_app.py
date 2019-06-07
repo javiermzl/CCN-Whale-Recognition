@@ -5,7 +5,9 @@ import tensorflow as tf
 from app.data import train_files, test_images
 from app.model import model_fn
 from app.prediction import generate_submission
-from app.arguments import arguments
+
+
+TRAIN_MODEL = True
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'    # Remove Warnings
@@ -50,10 +52,9 @@ def predict(images):
 
 
 if __name__ == '__main__':
-    train = arguments()
     model = model()
 
-    if train:
+    if TRAIN_MODEL:
         train_images, train_labels = train_files()
 
         train_model(train_images, train_labels)
