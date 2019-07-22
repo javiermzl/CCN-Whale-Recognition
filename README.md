@@ -1,4 +1,4 @@
-# Image-Recognition
+# CCN Humpback Whale Recognition
 Convolutional Neural Network with TensorFlow and Keras for image classification. 
 
 Project developed for [Bachelor Thesis](http://oa.upm.es/53050/1/TFG_JAVIER_MARTINEZ_LLAMAS.pdf).
